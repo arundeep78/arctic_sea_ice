@@ -1,0 +1,209 @@
+{% extends "layout.html" %}
+
+{% block header %}
+
+<script type = "text/javascript" src="{{url_for('static', filename='js/sia.js')}}"> </script>
+
+{% endblock %}
+
+{% block content %}
+<!-- Left panel -->
+<div id="left"> 
+   
+    <div id ="selections" >
+
+        {% if request.endpoint == "sialoss" %}
+        <label for="data_by">Data by :</label>
+        <select id= "data_by" name = "data_by" onchange= "GetQueryValues(this)">
+            <option value ="c" selected = "selected">  Countries</option>
+            <option value ="s" > Sectors</option>
+        </select>
+
+        {% endif %}
+        
+        <label for="cum">Cumulative:</label>
+        <select id= "cum" name="cum" onchange= "GetQueryValues(this)">
+            <option value ="y" selected = "selected">  Y </option>
+            <option value ="n" > N</option>
+            
+        </select>
+        
+        <label for="ds">Data Source:</label>
+        <select id= "ds" name = "ds" onchange= "GetQueryValues(this)">
+            <option value ="PIK">  PIK</option>
+            <option value ="CAIT" selected = "selected"> CAIT</option>
+        </select>
+
+        <div id="div_per_cap" class="sel_block">
+            <label for="per_cap">Per capita:</label>
+            <select id= "per_cap" name = "per_cap" onchange= "GetQueryValues(this)">
+                <option value ="y">  Y</option>
+                <option value ="n" selected = "selected"> N</option>
+            </select>
+        </div>
+
+
+        {% if countries is defined %}
+            <label for="countries">Country/region:</label>
+            <select id= "country" onchange= "GetQueryValues(this)">
+                {% for id,country in countries.iterrows() %}
+                    {% if loop.first %}
+                        <option value = '{{ country["iso_a3"] }}' selected = "selected"> {{ country["name"] }} </option>
+                    {% else %}
+                        <option value = '{{ country["iso_a3"] }}' > {{ country["name"] }} </option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        {% endif %}
+
+        {% if request.endpoint == "sialoss" %}
+        <label for="year">Year:</label>
+        <select id= "year" name = "year" onchange= "GetQueryValues(this)">
+            {% for yyyy in years %}
+                    {% if loop.first %}
+                        <option value = '{{ yyyy }}' selected = "selected"> {{ yyyy }} </option>
+                    {% else %}
+                        <option value = '{{ yyyy }}' > {{ yyyy }} </option>
+                    {% endif %}
+                {% endfor %}
+        </select>
+    
+
+        {% endif %}
+
+    </div> 
+
+
+
+    <br>
+    <div id="sialoss_echart" style="height:800px; width:800px;">
+    </div>
+
+    <div class= "legend">
+        {% if sec_legend %}
+        <table style="width:fit-content">
+            <tr>
+              <th colspan={{ sec_legend.keys()|length}}><h4>Industry Sectors Legend</h4></th>
+            </tr>
+            <tr >
+                {% for sec, col in sec_legend.items() %}
+            
+                    <td style="background-color: {{col}}">{{sec}}</td>
+                {% endfor %}
+            </tr>
+            
+          </table>
+          {% endif %}
+    </div>
+</div>
+
+
+<script>
+    var myChart = echarts.init(document.getElementById('sialoss_echart'));
+    var option;
+   
+    {% block echart_option %}
+
+    {% endblock %}
+
+    option && myChart.setOption(option);
+</script>
+
+
+<!-- Right panel -->
+<div id="right"> 
+ 
+    <div class= "grid-container"> 
+       
+        
+        
+        <div class="overview">
+            <strong> What does this chart shows?</strong>
+            {% block chart_info %}
+
+            {% endblock %}
+
+            <br><br>
+            <strong> How is sea ice loss contribution calculated?</strong>
+            <br>
+            As per scientific research published in 2016 in the <a href= "https://science.sciencemag.org/content/354/6313/747" title = "Observed Arctic sea-ice loss directly follows anthropogenic CO2 emission">journal science </a>,
+            Arctic Sea Ice loss is directly related to Global Greenhouse Gas (GHG) emissions. Using both observations and computer models, Notz and colleague Julienne Stroeve, of
+            the <a href= "https://nsidc.org/" title = "U.S. National Snow & Ice Data Center"> U.S. National Snow & Ice Data Center</a> and University College, London, found that 
+            when looking at averages over 30 years, every metric ton of carbon dioxide emitted results in the loss of 3 m<sup>2</sup> of sea ice. 
+            <br><br>
+            Data from <a href="https://www.climatewatchdata.org/about/faq/ghg"> Climate Watch </a> is used to get CO2 emissions for country and Industry sectors. These emissions are then converted to 
+            Sea Ice loss based on the relationship presented in the reseach paper mentioned above.
+            <br><br>
+            
+        </div>
+         
+        
+        <div class="comparison">
+
+      
+            {% if not per_cap %}
+                <h2> How much is {{"{:,}".format(tot_loss) }} km<sup>2</sup> of Sea Ice ?</h2>
+
+                
+                <ul>            
+                
+                    {% for idx, row in compare.iterrows() %}
+                        <li>
+                            {{ row["count"] }} times the size of <a href="https://en.wikipedia.org/wiki/{{ row['city'] }}">{{ row["city"] }}</a> ( {{ row["country"] }})
+                        </li>    
+                        
+                    {% endfor %}
+            
+                </ul>
+
+            {%  else %}
+                <h2> How much is {{"{:,}".format(tot_loss) }} m<sup>2</sup> of Sea Ice ?</h2>
+            
+                <ul>            
+                
+                    {% for idx, row in compare.iterrows() %}
+                        <li>
+                            {{ "{:,}".format(row["count"]) }} {{ row["item"]}}
+                            {% if row["direction"] == "n" %}  
+                                <strong> to avoid sea ice loss</strong>
+                            {% endif %}
+                        
+                        </li>    
+                        
+                    {% endfor %}
+            
+                </ul>
+
+            
+            {% endif %}
+            
+            
+        </div>
+       
+        <div class="reference">
+
+            {% if not per_cap  %}
+            
+                City area is bsaed on wikipedia source <a href ="https://en.wikipedia.org/wiki/List_of_largest_cities"> List of largest cities</a>. For area 'City proper column'
+                is used as reference for above calculations.
+                <br>
+                <br>
+                EUU standards for European Union and as of today includes {{ grp_countries|length }} countries. List of country codes included are as below. <br>
+                {{ grp_countries }}
+            
+            {% else %}
+                To calculate Sea ice loss equivalance, CO2 emissions reference from <a href="https://www.epa.gov/energy/greenhouse-gases-equivalencies-calculator-calculations-and-references">US Environmental Protection Agency </a>
+                is used. As per the link, once needs to keep in mind that these are approximate values and many of them are US based references e.g. Home energy use will vary a lot amoing countries.
+
+            
+            {% endif %}
+        
+        </div>
+ 
+    </div>
+    
+
+</div>
+
+
+{% endblock %}

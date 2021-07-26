@@ -1,0 +1,64 @@
+{% extends "sia_layout.html" %}
+{% block title %}
+Sea Ice Loss contributions by Sectors
+
+{% endblock %}
+
+
+{% block echart_option %}
+
+   
+option = {
+    title: {
+        text: '{{ title }}',
+        subtext : {{ subtitle|tojson }},
+        textStyle: {
+            fontSize: 16,
+            align: 'center'
+        },
+        subtextStyle: {
+            align: 'center',
+            fontSize: 14
+        }
+    },
+    legend: {
+        show: false
+    },
+    tooltip: {
+        trigger: 'item',
+        showContent: true,
+        formatter: '{b} : <br> {c} ( {d}% )  '
+    },
+
+    series: [
+    {
+        type : 'pie',
+        label : { show : true },
+        radius: ['30%', '70%'],
+        data: {{ data | tojson }}
+    } 
+    ]
+};
+
+{% endblock %}
+
+    
+{% block compare %}
+
+
+{% endblock %}
+
+
+{% block chart_info %}
+
+    {% if per_cap %}
+        Chart shows amount of Arctic Sea Loss contrbutions in m<sup>2</sup> per capita for each sector.
+    {% else %}
+        Chart shows amount of Arctic Sea Loss contrbutions in km<sup>2</sup> for each sector.
+
+    {% endif %}
+
+{% endblock %}
+            
+         
+        

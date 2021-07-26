@@ -1,0 +1,307 @@
+{% extends "layout.html" %}
+
+{% block header %}
+
+<script type = "text/javascript" src="{{url_for('static', filename='js/siage.js')}}"> </script>
+
+{% endblock %}
+
+{% block content %}
+<!-- Left panel -->
+<div id="left"> 
+   <div id ="top_chart">
+    <div id ="selections" >
+
+        <label for="by">Trends by :</label>
+        <select id= "by" name = "by" onchange= "GetQueryValues(this)">
+            <option value ="month" selected = "selected">  Month</option>
+            <option value ="year" > Year</option>
+            <!-- <option value ="total"> Overall</option> -->
+        </select>
+
+        <label for="siac">Age categorization:</label>
+        <select id= "siac" name = "siac" onchange= "GetQueryValues(this)">
+            <option value ="y" selected = "selected">  By years</option>
+            <option value ="c" > By categories</option>
+            <!-- <option value ="total"> Overall</option> -->
+        </select>
+
+
+        <div id="month_b" class="sel_block">
+            <label for="month">Select Month:</label>
+            <select id= "month" name="month" onchange= "GetQueryValues(this)">
+                
+                {% for month in month_names %}
+                    {% if change["month"] == month %}
+                        <option value = '{{ loop.index }}' selected ="selected"> {{ month }}</option>
+                    {% else %}
+                        <option value = '{{ loop.index }}' > {{ month }}</option>
+                    {% endif %}
+
+                {% endfor %}
+            </select>
+        </div>
+
+        <div id="year_b" class="sel_block">
+            <label for="year">Year:</label>
+            <select id= "year" name = "year" onchange= "GetQueryValues(this)">
+                
+                {% for year in years %}
+                    {% if loop.index == 2 %}
+                        <option value = '{{ year }}' selected = " selected">  {{ year }} </option>
+
+                    {% else %}
+                        <option value = '{{ year }}'>  {{ year }} </option>
+                    {% endif %}
+                {% endfor %}
+            
+            </select>
+
+            <label for="agg" style="display:none"> aggregation: </label>
+            <select id = "agg" name ="agg" onchange = "GetQueryValues(this)" style="display:none" >
+                <option value ="m" selected = "selected"> Monthly</option>
+                <option value = "w" > Weekly</option>
+            </select>
+        </div>
+        
+        <label for="pct"> %age:</label>
+        <select id= "pct" name = "pct" onchange= "GetQueryValues(this)">
+            <option value ="y">  Y</option>
+            <option value ="n" selected = "selected"> N</option>
+        </select>
+    
+    </div> 
+
+
+
+    <br>
+    <div id="siage_echart" class = "echart">
+    </div>
+    </div>
+
+    <div id="bottom_chart">
+        <div id="siage_sankey" class = echart>
+
+        </div>
+
+    </div>
+    
+</div>
+
+<script>    
+    var myChart = echarts.init(document.getElementById('siage_sankey'));
+    var option;
+
+    option =  {
+            title : {
+                text: "Sea ice age flow",
+                padding : [5,5,20,5],
+                itemGap: 20
+            },
+            
+            toolbox: {
+                feature: {
+                    saveAsImage: {}
+                 }
+            },
+            tooltip: {
+                trigger: 'item',
+                triggerOn: 'mousemove'
+            },
+            series: {
+                type: 'sankey',
+                layout: 'none',
+                nodeAlign: 'left',
+                top: "10%",
+                {% if sankey_type == "be" %}
+                    left: '35%',
+                    right: '35%',
+                    bottom: '10%',
+                {% endif %}    
+                emphasis: {
+                    focus: 'adjacency'
+                },
+                lineStyle :{
+                    color: 'gradient'
+                    
+                },
+                data: {{ sankey_nodes | tojson }},
+                links: {{ sankey_links | tojson }}
+            }
+    };
+    option && myChart.setOption(option);
+</script>
+
+<script>
+    var myChart = echarts.init(document.getElementById('siage_echart'));
+    var option;
+   
+    {% if request.args.get("by") == "year" and polar %} 
+        option = {
+            angleAxis :{
+                "type": "category",
+                data : {{ xaxis_data | tojson }}
+            },
+            radiusAxis : {},
+            polar : {
+                "radius" : ["20%", "80%"]
+            },
+            legend : {
+                top : "bottom"
+            },
+            title: {
+                text: 'Sea ice age change'
+            },
+            tooltip: {
+                trigger: 'item',
+                order: "seriesDesc",
+                axisPointer: {
+                    type: 'cross',
+                    label: {
+                        backgroundColor: '#6a7985'
+                    }
+                }
+            },
+            series : {{ series | tojson }}
+        };
+    {% else %}
+        option = {
+            title: {
+                text: 'Sea ice age change'
+            },
+            tooltip: {
+                trigger: 'axis',
+                order: "seriesDesc",
+                axisPointer: {
+                    type: 'cross',
+                    label: {
+                        backgroundColor: '#6a7985'
+                    }
+                }
+            },
+            toolbox: {
+                feature: {
+                    saveAsImage: {},
+                
+                    magicType : {
+                        show : true,
+                        type: ['line', 'bar']
+                    }
+                }
+            },
+            legend : {
+                top : "bottom"
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '15%',
+                containLabel: true
+            },
+            xAxis: [
+                {
+                    type: 'category',
+                    boundaryGap: false,
+                    name: {{ xname | tojson }},
+                    nameLocation: "middle",
+                    offset: 10,
+                    nameTextStyle : {
+                        fontSize : 14,
+                        lineHeight: 30
+
+                    },
+                    data: {{ xaxis_data | tojson }}
+                }
+            ],
+            yAxis: [
+                {
+                    type: 'value',
+                    name: {{ yname | tojson }},
+                    nameLocation: "middle",
+                    nameTextStyle: {
+                        fontSize: 14
+                    }
+                }
+            ],
+            series: {{ series | tojson }}
+
+        }; 
+    {% endif %}
+
+    option && myChart.setOption(option);
+</script>
+
+
+<!-- Right panel -->
+<div id="right"> 
+ 
+    <div class= "grid-container"> 
+       
+        
+        
+        <div class="overview">
+            <strong> What does this chart shows?</strong>
+            <br>
+            This chart shows coverage of Arctic sea ice by age. Chart shows trends of change in multi-year ice. NSIDC prepares sea ice age data from satellite observations.
+            There are 2 products available from NSIDC : 
+            <br>
+            <ul>
+                <li> <a href="https://nsidc.org/data/NSIDC-0611/versions/4"> NSIDC 0611 : EASE Grid Sea Ice age : 1984 - 2020</a></li>
+                <li> <a href="https://nsidc.org/data/nsidc-0749"> NSIDC 0749 : Quicklook Arctic Weekly EASE-Grid Sea Ice Age: 2021 onwards </a></li>
+    
+            </ul>
+            <br>
+            <strong> How is age of Sea ice defined?</strong>
+            <br>
+            It is a classification used by scientists to describe sea ice on its development stages. 
+            These stages are: 
+            <ul> 
+                <li>new ice, nilas, young ice (< 1 year old) ,</li>
+                <li>first-year ice (1-2 years),</li>
+                <li>and old ice or multi-year ice (> 2 years)</li>
+                
+            </ul>
+ 
+            
+            In this graphics Sea ice can be categorized in 2 ways. 
+            <ul> 
+                <li>By years i.e. from 0-1 years to 4+ years with annual increments. OR </li>
+                <li> By categories i.e new ice, first year ice and multi-year ice</li>
+            
+            </ul>
+            <strong> How has Sea Ice changed over time?</strong> 
+            <br>
+            {{ change["month"] }}'s {{ change["ice_name"] }} Sea Ice in {{ change["before"]["year"] }} was {{"%0.1f" | format(change["before"]["pct"]) }} %. 
+            and in  {{ change["after"]["year"] }} is {{ "%0.1f" | format(change["after"]["pct"]) }} %.  A change of <strong>{{ "%0.1f"| format(change["diff"]) }} %! </strong>
+            
+            
+        </div>
+         
+        
+        <div class="comparison">
+            <h3> Comparison of Sea Ice age of latest week {{ siage_week }} in comparison to year 1984 </h3>
+            <div id = "start_img", class= "siage">
+                <img src = "{{url_for('static', filename='images/' + start_image ) }}" class = "siage_img"> 
+            
+            </div>
+           
+            <div id = "latest_img", class ="siage">
+                <img src = "{{url_for('static', filename='images/' + latest_image ) }}" class = "siage_img">
+                
+            </div>
+        </div>
+       
+        <div class="reference">
+            <br><br>
+            Refer to <a href="https://en.wikipedia.org/wiki/Sea_ice"> Wikipedia</a> for further details. 
+            
+        
+        </div>
+ 
+    </div>
+    
+
+</div>
+
+
+{% endblock %}

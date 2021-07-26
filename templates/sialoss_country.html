@@ -1,0 +1,76 @@
+{% extends "sia_layout.html" %}
+{% block title %}
+Sea Ice Loss contributions by individual country and its sectors
+
+{% endblock %}
+
+
+{% block form %} 
+       
+{% endblock %}
+
+
+{% block echart_option %}
+
+
+    option = {
+        title: {
+            text: '{{ title }}',
+            subtext: {{ subtitle | tojson }},
+            padding : 10,
+            textStyle: {
+                fontSize: 16,
+                align: 'center'
+            },
+            subtextStyle: {
+                fontSize: 14,
+                align: 'center'
+            }
+            
+        },
+        legend: {
+            top : 'bottom'
+        },
+        tooltip: {
+            trigger: 'axis',
+            showContent: true,
+            order : 'valueDesc'
+        },
+        toolbox: {
+            feature : {
+                magicType : {
+                    show : true,
+                    type: ['line', 'bar', 'stack']
+                },
+                dataView : {
+                    show: true
+                }
+            }
+        },
+        dataset: {
+            source: {{ data | tojson }}
+        },
+        xAxis: {type: 'category'},
+        yAxis: {gridIndex: 0},
+        grid: {top: '5%'},
+        series: 
+           {{ sia_series | tojson }} 
+        
+    };
+
+    
+{% endblock %}
+{% block comp_heading %}
+    <h2> {{ iso_a3 }} has caused {{"{:,}".format(tot_loss) }} km<sup>2</sup> of Sea Ice loss since {{ start_year }}</h2>
+     Check how much is that in comparison.
+
+{% endblock %}
+
+{% block chart_info %}
+
+    Chart shows amount of Arctic Sea Loss contrbutions of a country divided into industry sectors over time. Information is avilable as emissions per year, 
+    cumulative as well as per capita.
+{% endblock %}
+            
+         
+        

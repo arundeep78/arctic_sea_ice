@@ -1,0 +1,9 @@
+{% extends "sia_layout.html" %}  
+
+
+{% block content %} 
+
+<h4> An error happend while executing the query. Please go back and check the query paramters</h4>
+<strong> Error message</strong>
+{{ error | tojson }} 
+{% endblock %}

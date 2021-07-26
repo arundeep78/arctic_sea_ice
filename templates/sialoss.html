@@ -1,0 +1,102 @@
+{% extends "sia_layout.html" %}
+{% block title %}
+Sea Ice Loss contributions by Top emitters, countries and Industry sectors
+
+{% endblock %}
+
+
+{% block echart_option %}
+
+    option = {
+        title: {
+            text: '{{ title }}',
+            subtext: 'Top emitters caused {{top_contr}} % of Arcic Sea Ice loss!.',
+            textStyle: {
+                fontSize: 16,
+                align: 'center'
+            },
+            subtextStyle: {
+                align: 'center',
+                fontSize: 14
+            }
+        },
+        series: {
+                type: 'sunburst',
+
+                emphasis: {
+                    focus: 'ancestor',
+                    label: {
+                        formatter: '{b}\n\n{c} ',
+                        rotate: 'tangential',
+                        align: 'center'
+                    }
+                },
+
+                radius: [0, '95%'],
+                
+                label: {
+                    minAngle : 3
+                },
+                
+                levels: [{},
+                    {
+                        label: {
+                                rotate: 'tangential',
+                             formatter: '{b}\n\n{c} ',
+                             verticalAlign : 'bottom',
+                             offset : [230,340]
+                        }
+                    }, 
+                    {
+                        {% if per_cap == "y" %}
+                            
+                            itemStyle : {
+                                opacity: 0
+                            },
+                        {% endif %}
+                        
+                        label: {
+                            rotate: 'radial',
+                            {% if per_cap == "y" %}
+                                
+                                show: false
+                            
+                            {% endif %}
+                                // formatter: '{b}\n\n{c}'
+                        }
+                    }, 
+                    {
+                        label: {
+                            rotate: 'radial',
+                            align : 'left'
+                            //show : false
+                            
+                        }
+                    },
+                    {
+                        label: {
+                            show: false,
+                            align: 'left'
+        
+                        }
+
+                    }
+                ],
+                data: {{data | tojson}}
+                
+            }
+        };
+{% endblock %}
+
+    
+
+{% block chart_info %}
+
+Chart shows amount of Arctic Sea Loss contrbutions by countries and respective industry sectors. One can have a cumulative view as well as for a given year. 
+Note than CO2 emissions do not have 1-1 relationship with sea ice loss, rather it represents a long term trend over the years. It is an interactive chart and one can look in details for each country
+either by hovering or clicking on a country to get focussed view. Try it!
+
+{% endblock %}
+            
+         
+        
