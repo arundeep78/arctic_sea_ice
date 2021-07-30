@@ -4,7 +4,7 @@
 - Sea Ice loss trend for countries by industry sectors
 - Sea Ice age trends over time
 
-**NONE: None of these are developed to be production ready applications. Just for education purposes.**
+**NOTE: None of these are developed to be production ready applications. Just for education purposes.**
 
 # Configuration and run
 ## From local machine
@@ -25,8 +25,9 @@
 - However, some changes need to be done to make the /siage route working as this view relies on data from another script to be available
 - make below changes 
   - uncomment below lines in csutils.py > get_sia_fnames
-    - #local_img_path = "./nsidc/imgs/"
-    - #local_nc_path = "./nsidc/data/"
+    - #local_img_path = "./nsidc/imgs/" - NSIDC image are kept here for first year (1984) and latest year
+    - #local_nc_path = "./nsidc/data/" - NSIDC NETCDF4 files are kept here.
+  - To help test the application for 2021 images are made available in folder nsidc with aboe given structure
 - Build docker container
 - Run docker container with volume mount as 
   - docker run -p 5000:5000 --name sia --mount type=**bind**,source=**d:/[path to directories]**,target=/app/nsidc [image name]
@@ -42,7 +43,7 @@
     - age categorization : by year or age categories
     - %age : show values or percentage
 - Also shows a sankey chart of the change over time.
-- Comparison of the latest week image available on NSIDC server in comparison to same week in 1984. NOTE: images are not updated by this falsk app, another script needs to run monthly to download latest images from NSIDC server
+- Comparison of the latest week image available on NSIDC server in comparison to same week in 1984. NOTE: images are not updated by this flask app, another script needs to run monthly to download latest images from NSIDC server
 - Small description of the Sea Ice and datasources used.
 
 ## /sialoss
