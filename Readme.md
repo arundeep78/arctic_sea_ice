@@ -30,7 +30,7 @@
   - To help test the application for 2021 images are made available in folder nsidc with aboe given structure
 - Build docker container
 - Run docker container with volume mount as 
-  - docker run -p 5000:5000 --name sia --mount type=**bind**,source=**d:/[path to directories]**,target=/app/nsidc [image name]
+  - docker run -p 5000:5000 --name sia --mount type=**bind**,source=**d:/[path to nsidc directory]**,target=/app/nsidc [image name]
 
 
 
