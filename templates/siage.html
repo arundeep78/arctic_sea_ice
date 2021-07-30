@@ -95,8 +95,18 @@
     option =  {
             title : {
                 text: "Sea ice age flow",
-                padding : [5,5,20,5],
-                itemGap: 20
+                padding : [5,5,5,5],
+                itemGap: 10,
+                subtext : '{{ sk_subtext }}',
+                textStyle: {
+                    fontSize: 16,
+                    align: 'center'
+                 },
+                subtextStyle: {
+                    fontSize: 14,
+                    align: 'center'
+                }
+           
             },
             
             toolbox: {
@@ -125,8 +135,8 @@
                     color: 'gradient'
                     
                 },
-                data: {{ sankey_nodes | tojson }},
-                links: {{ sankey_links | tojson }}
+                data: {{ sk_nodes | tojson }},
+                links: {{ sk_links | tojson }}
             }
     };
     option && myChart.setOption(option);

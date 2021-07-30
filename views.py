@@ -14,6 +14,10 @@ from . import validations as val
 
 # conn = csutils.get_alchemy_connection(config.config_db(db_file))
 
+@app.route("/")
+def hello():
+
+    return jsonify(hello = "world")
 
 @app.route("/siage/")
 def siage():
@@ -33,7 +37,6 @@ def siage():
     """
 
     # Get request parameters and check validity
-
     args = request.args
 
     by = val.siage_val(args.get("by", "month", type = str), "by")
@@ -67,7 +70,7 @@ def siage():
 
     # get sankey elements for SI age echarts
     sankey_type = "ms"
-    sankey = csutils.siage_sankey(conn = conn, month = month, hideLoss=False, hideY1= False,period=10, type =sankey_type)
+    sankey = csutils.siage_sankey(conn = conn, month = month, hideLoss=True, hideY1= False,period=10, type =sankey_type)
 
     if isinstance(sankey,str) :
         return render_template("sia_error.html", error= sankey )
@@ -76,9 +79,8 @@ def siage():
     return render_template("siage.html",    
                             years = ds_years,
                             month_names = calendar.month_name[1:],
-                            sankey_nodes = sankey[0],
-                            sankey_links = sankey[1],
                             sankey_type = sankey_type,
+                            **sankey,
                             **siage,
                             **siafnames
                             )
@@ -252,11 +254,4 @@ def sialoss():
 
 
 
-    #return render_template("sialoss.html", year = year, data = data)
     
-
-
-@app.route("/api/data")
-def get_data():
-    data = app.send_static_file("json/data.json")
-    return data

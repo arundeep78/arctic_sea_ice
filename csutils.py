@@ -86,21 +86,22 @@ group_color_dict = {"Others": "#D1D1D1", #ADADAD",
 
 siage_color_dict = {
         "new" : "#B2FFFF",
+        "0-1" : "#3D50A4", #"blue",
+        "1-2" : "#6FCDDE", #"lightblue",
+        "2-3" :  "#6FC042", #"green",
+        "3-4" :  "#FCB210", #"yellow",
+        "4+" :  "#F02009",#'red',
+        "loss" : 'black'
+    }
+
+
+siage_color_dict_y = {
+        "new" : "#B2FFFF",
         "y1" : "#3D50A4", #"blue",
         "y2" : "#6FCDDE", #"lightblue",
         "y3" :  "#6FC042", #"green",
         "y4" :  "#FCB210", #"yellow",
         "y5" :  "#F02009",#'red',
-        "loss" : 'black'
-    }
-
-siage_color_dict_old = {
-        "new" : "#B2FFFF",
-        "y1" : "blue",
-        "y2" : "lightblue",
-        "y3" : "green",
-        "y4" : "yellow",
-        "y5" : 'red',
         "loss" : 'black'
     }
 
@@ -1486,8 +1487,9 @@ def get_siage(conn = None, by = "month", month = 9, year = None, agg = "m", pct=
             }
         if siac == "y":
             if col == single["name"]:
+                si = "4+" if i == 0 else str(len(si_col_text)-i-1) + "-" + str(len(si_col_text)-i)
                 single["itemStyle"] = {
-                    "color" : siage_color_dict["y" + str(len(si_col_text)-i)]
+                    "color" : siage_color_dict[si]
                 }
 
        
@@ -1523,7 +1525,10 @@ def siage_sankey(conn = None, month= 10, hideLoss = False, hideY1 = False, perio
     """
 
 
-    
+    siage_col_map = {}
+
+    disp_col = [ str(i) + "-" + str(i+1)  if i < 4 else "4+" for i in range(5)]
+
     sel_cols = [ "y" + str(i) for i in range(1,6)]
 
     stmt = "select year, {} from {} where month = '{}'"
@@ -1534,8 +1539,6 @@ def siage_sankey(conn = None, month= 10, hideLoss = False, hideY1 = False, perio
     y_min = df_siage["year"].min()
     y_max = df_siage["year"].max()
 
-    # Decadal median
-    #sel_years = [1980 +(c+1)*n for c in range((datetime.date.today().year-1985)//n+1)]
     
     # generate periods
     sel_years = list(range((y_min//period)*period, y_max+1, period))
@@ -1543,15 +1546,19 @@ def siage_sankey(conn = None, month= 10, hideLoss = False, hideY1 = False, perio
     if type == "ms":
         sel_years = [ p for p in  sel_years if p >= y_min]
         df_siage["period"] = df_siage["year"]
-
+        subtitle = "Each stage in chart shows median values for a give year for " + calendar.month_name[month]
     elif type =="pd":
         sel_years = [ p for p in  sel_years[:-1] if p >= y_min]
 
         df_siage["period"] = period* (df_siage["year"]//period)
+
+        subtitle = "Each stage in chart is median of the decade for " + calendar.month_name[month]
     
     elif type == "be":
         sel_years =[y_min, y_max]
         df_siage["period"] = df_siage["year"]
+
+        subtitle = "Each stage in the chart is median values for a given year for " + calendar.month_name[month]
 
     # select the records for given periods/ milestones and get median values
     df_siage = df_siage.loc[df_siage["period"].isin(sel_years)].groupby("period")[sel_cols].median()
@@ -1573,8 +1580,8 @@ def siage_sankey(conn = None, month= 10, hideLoss = False, hideY1 = False, perio
             if i == d:
                 
                 link_new = {
-                            "source" : str(y) + " - new",
-                            "target" : str(y1p) + " - y1",
+                            "source" : str(y) + " : new",
+                            "target" : str(y1p) + " : " + "0-1",
                             "value" : 0 ,#df_siage[ y1p, "y1"],
                             "lineStyle" : {
                                 "opacity" : 0
@@ -1583,8 +1590,8 @@ def siage_sankey(conn = None, month= 10, hideLoss = False, hideY1 = False, perio
                 
             else:
                 link_new = {
-                            "source" : str(sel_years[i]) + " - new",
-                            "target" : str( sel_years[i+1]) + " - new",
+                            "source" : str(sel_years[i]) + " : new",
+                            "target" : str( sel_years[i+1]) + " : new",
                             "value" : 0,
                             "lineStyle" : {
                                             "color": 'line',
@@ -1595,23 +1602,23 @@ def siage_sankey(conn = None, month= 10, hideLoss = False, hideY1 = False, perio
             links.append( link_new)
         
         # for each age category of sea ice
-        for a in range(1,len(sel_cols)):
-            age = "y" + str(a)
-            age1p = "y"+ str(a+1)
+        for i, a in enumerate(sel_cols[:-1]):
+            age = a
+            age1p = "y"+ str(i+2)
             
 
             #if amount of next stage ice is less than previous stage, then all contribution came from previous stage and decade
             if df_siage[y1p,age1p] < df_siage[y,age]: 
                 link = {
-                        "source" : str(y) + " - " + age,
-                        "target" : str(y1p) + " - " + age1p,
+                        "source" : str(y) + " : " + disp_col[i],
+                        "target" : str(y1p) + " : " + disp_col[i+1],
                         "value" : df_siage[y1p,  age1p]
                 }
                 links.append(link)
                 
                 link = {
-                        "source" : str(y) + " - " + age,
-                        "target" : str(y1p) + " - loss",
+                        "source" : str(y) + " : " + disp_col[i],
+                        "target" : str(y1p) + " : loss",
                         "value" :  np.round(df_siage[y,age] - df_siage[y1p,  age1p],2) 
                       
                 }
@@ -1620,8 +1627,8 @@ def siage_sankey(conn = None, month= 10, hideLoss = False, hideY1 = False, perio
                 # if the age in check is y5 that is last year of sea ice age
                 if age1p == "y5":
                     link = {
-                        "source" : str(y) + " - " + age1p,
-                        "target" : str(y1p) + " - loss",
+                        "source" : str(y) + " : " + disp_col[i+1],
+                        "target" : str(y1p) + " : loss",
                         "value" : df_siage[y, age1p]
                     }
                 
@@ -1631,8 +1638,8 @@ def siage_sankey(conn = None, month= 10, hideLoss = False, hideY1 = False, perio
             else:
                 # connection that came from the previous stage and decade
                 link = {
-                    "source" : str(y) + " - " + age,
-                    "target" : str(y1p) + " - " + age1p,
+                    "source" : str(y) + " : " + disp_col[i],
+                    "target" : str(y1p) + " : " + disp_col[i+1],
                     "value" : df_siage[y,  age]
                 }
 
@@ -1640,16 +1647,16 @@ def siage_sankey(conn = None, month= 10, hideLoss = False, hideY1 = False, perio
 
                 # connection that came from same stage but previous decade
                 link = {
-                    "source" : str(y) + " - " + age1p, 
-                    "target" : str(y1p) + " - " + age1p,
+                    "source" : str(y) + " : " + disp_col[i+1], 
+                    "target" : str(y1p) + " : " + disp_col[i+1],
                     "value" : np.round(df_siage[y1p,  age1p] - df_siage[y,  age],2)
                 }
                 links.append(link)
                 
                 # connection how much was same stage ice loss in previous decade
                 link = {
-                    "source" : str(y) + " - " + age1p, 
-                    "target" : str(y1p) + " - loss",
+                    "source" : str(y) + " : " + disp_col[i+1], 
+                    "target" : str(y1p) + " : loss",
                     "value" : np.round(abs(df_siage[ y,age1p] - df_siage[y1p,  age1p] + df_siage[y,  age]),2)
                 }
                 links.append(link)
@@ -1673,14 +1680,14 @@ def siage_sankey(conn = None, month= 10, hideLoss = False, hideY1 = False, perio
     nodes = []
 
     for i,y in enumerate(sel_years):
-        for a in sel_cols + ["new", "loss"]:
+        for a in disp_col + ["new", "loss"]:
             
             if (i==0 and a == "loss") :#or (y == sel_years[-1] and a == "new"):
                 continue
                 
             elif a == "new":
                 node = { 
-                    "name" : str(y) + " - " +a,
+                    "name" : str(y) + " : " +a,
                     "itemStyle": {
                         "color" : siage_color_dict[a],
                         "opacity" : 0
@@ -1694,7 +1701,7 @@ def siage_sankey(conn = None, month= 10, hideLoss = False, hideY1 = False, perio
 
             else:
                 node = { 
-                    "name" : str(y) + " - " + a,
+                    "name" : str(y) + " : " + a,
                     "itemStyle": {
                         "color" : siage_color_dict[a]
 
@@ -1702,21 +1709,26 @@ def siage_sankey(conn = None, month= 10, hideLoss = False, hideY1 = False, perio
                 }
             
 
-            if (a == "loss" and hideLoss) or ( a =="y1" and hideY1):
+            if (a == "loss" and hideLoss) or ( a =="0-1" and hideY1):
                 node["itemStyle"]["opacity"] = 0
                 node["label"] = {
                     "show" : False
                 }
 
-            if y == sel_years[-1] and a == "y1":
-                node["value"] = df_siage[y,a]
+            if y == sel_years[-1] and a == "0-1":
+                node["value"] = df_siage[y,"y1"]
 
             nodes.append(node)
 
+    subtitle 
+    sankey = {
+        "sk_nodes" : nodes,
+        "sk_links" : links,
+        "sk_subtext" : subtitle
+    }
 
 
-
-    return nodes, links
+    return sankey
 
 
 import os
@@ -1742,6 +1754,9 @@ def get_sia_fnames(remote = False):
     
     local_img_path = "../../sea_ice_age/imgs/"
     local_nc_path = "../../sea_ice_age/data/"
+
+    # local_img_path = "./nsidc/imgs/"
+    # local_nc_path = "./nsidc/data/"
 
     fname_start = "iceage_nh_12.5km_{}_{}_v4.1.png"
     fname_end = "iceage_nh_12.5km_{}_{}_ql.png"
