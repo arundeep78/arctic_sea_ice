@@ -42,7 +42,7 @@
     - age categorization : by year or age categories
     - %age : show values or percentage
 - Also shows a sankey chart of the change over time.
-- Comparison of the latest week image available on NSIDC server in comparison to same week in 1984. NOTE: images are not updated by this falsk app, another script needs to be run monthly to downloaded latest images from NSICD server
+- Comparison of the latest week image available on NSIDC server in comparison to same week in 1984. NOTE: images are not updated by this falsk app, another script needs to run monthly to download latest images from NSIDC server
 - Small description of the Sea Ice and datasources used.
 
 ## /sialoss
