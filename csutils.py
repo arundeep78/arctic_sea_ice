@@ -21,7 +21,7 @@ from shutil import copyfile
 tbl_ghg = "t_climatewatch_emissions"
 
 # emissions sectors hierarchy
-t_sectors = "t_climatewatch_sectors"
+tbl_sectors = "t_climatewatch_sectors"
 
 # sea_ice _area
 tbl_sia = "t_nsidc_sea_ice_area"
@@ -31,6 +31,18 @@ tbl_population = "t_ref_un_population"
 
 # Sea Ice age table
 tbl_siage = "t_nsidc_sea_ice_age"
+
+# CO2 emissions equivalance table for small changes  e.g. per capita change equals to how many mobiles charged
+tbl_co2_eq = "t_ref_co2_emissions_equivalences"
+
+# table name of the DB table where city area reference lookup is
+tbl_large_cities = "t_ref_largest_cities"
+
+# table of UN country codes and names
+tbl_iso_codes = "t_ref_un_iso_codes"
+
+# DB table with world bank classification of countries and regions by various categories
+t_wb_class = "t_ref_worldbank_world_class"
 
 # Sea ice factor for CO2 emisssions
 si_co2_factor = 3
@@ -258,12 +270,12 @@ def get_country_list(db_conn, source ="CAIT"):
 
     stmt = """select distinct(tce.iso_a3), truic.country as name
             from {} as tce
-            left join t_ref_un_iso_codes truic 
+            left join {} truic 
                 on tce.iso_a3 = truic.iso_a3 
             where
                 tce.data_source = '{}'
             """
-    stmt = stmt.format(tbl_ghg, source)
+    stmt = stmt.format(tbl_ghg, tbl_iso_codes, source)
 
     df_ccodes = pd.read_sql(stmt,con= db_conn)
     
@@ -286,8 +298,6 @@ def get_group_ccodes(db_conn, g_code = "EUU"):
     """
     # Find EU countries to exclude as individuals
     # Get data by countries and sectors from database
-
-    t_wb_class = "t_ref_worldbank_world_class"
 
     stmt = f"select iso_a3 from {t_wb_class} where groupcode = '{g_code}'"
 
@@ -513,12 +523,12 @@ def sialoss_top_cum(db_conn, source = "CAIT", year = 1990,top_n= 10, cum = True)
     if cum:
         if year is None:
             year = min_year
-        stmt = stmt_cum.format(tbl_ghg,t_sectors, source, gas, exl_loc, year, exl_ids)   
+        stmt = stmt_cum.format(tbl_ghg,tbl_sectors, source, gas, exl_loc, year, exl_ids)   
         #print( f"cum : {cum}") 
     else:
         if year is None:
             year = max_year
-        stmt = stmt_year.format(tbl_ghg,t_sectors, source, gas, exl_loc, year, exl_ids)
+        stmt = stmt_year.format(tbl_ghg,tbl_sectors, source, gas, exl_loc, year, exl_ids)
     
     df_emissions = pd.read_sql(stmt, con= db_conn)
     
@@ -807,7 +817,7 @@ def sialoss_country(db_conn, source = "CAIT" ,location = "WORLD", cum =False, pe
     stmt = f"select max(year) from {tbl_ghg} where data_source = '{source}'"
     max_year = pd.read_sql( stmt, con = db_conn).iloc[0,0]
     
-    stmt = stmt_year.format(tbl_ghg,t_sectors, source, gas, location, excl_ids)
+    stmt = stmt_year.format(tbl_ghg,tbl_sectors, source, gas, location, excl_ids)
     #print(stmt)
     df_emissions = pd.read_sql(stmt, con= db_conn)
     
@@ -982,12 +992,10 @@ def co2_emissions_equivalent( reference , conn = None):
         con ([SQLAlchemy connection], optional): [Database connection]. Defaults to None.
         reference ([float]): [CO2 amount in metric tons for which co2 activity equivalence to be calculated]. 
     """
-     # table name of the DB table where city area reference lookup is
-    tbl_name = "t_ref_co2_emissions_equivalences"
-
+    
     stmt_base = "select item, direction, co2 from {}"
     
-    stmt = stmt_base.format(tbl_name)
+    stmt = stmt_base.format(tbl_co2_eq)
 
     print( stmt)
     df_co2_eq = pd.read_sql(stmt, con=conn)
@@ -1011,8 +1019,7 @@ def loc_area_multiplier(conn = None, location = None, reference = None):
     Returns:
         [dict]: Location : number of units dictionary
  """
-    # table name of the DB table where city area reference lookup is
-    tbl_name = "t_ref_largest_cities"
+    
 
     stmt_base = "select city, country, area from {} where city in {}"
     
@@ -1022,7 +1029,7 @@ def loc_area_multiplier(conn = None, location = None, reference = None):
     if isinstance(location, str):
         location = (location)
 
-    stmt = stmt_base.format(tbl_name, location)
+    stmt = stmt_base.format(tbl_large_cities, location)
 
 
     df_cities = pd.read_sql(stmt, con = conn)

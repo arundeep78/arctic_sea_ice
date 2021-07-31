@@ -1,0 +1,10 @@
+"item","direction","co2"
+litres of petrol consumed,p,0.002347952
+litres of diesel consumed,p,0.002689564
+passenger vehicles per year,p,4.6
+km driven by average passenger vehicle,p,0.000247205
+bulbs not replaced by LED/year,p,0.0264
+homes' energy usage in USA per year,p,8.3
+propane cylinders used for home barbecues,p,0.024
+smartphones charged,p,0.00000822
+urban tree seedlings need to grow for 10 years ,n,0.06

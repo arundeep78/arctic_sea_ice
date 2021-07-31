@@ -6,34 +6,6 @@
 
 **NOTE: None of these are developed to be production ready applications. Just for education purposes.**
 
-# Configuration and run
-## From local machine
-- use requirements.txt (pip) or environments.yml(conda) to setup flask environment.
-- To run from VS Code 
-  - make sure that .vscode/settings.json points to the correct python.
-  - Check .vscode/launch.json for settingsif you have changed any file name.
-  - Run the envoronment in VS code by selecting the correct configuration
-- To run from commond prompt
-  - make sure that current working directory is root directory of this application
-  - Set the FLASK_APP="webapp.py" in your python virtual environment.
-    - For powershell - $env:FLASK_APP="webapp.py"
-    - For windows cmd - set FLASK_APP="webapp.py"
-    - For unix/MacOS - export set FLASK_APP="webapp.py"
-    -  
-## As a docker container
-- It is also possible to run the application as docker container.
-- However, some changes need to be done to make the /siage route working as this view relies on data from another script to be available
-- make below changes 
-  - uncomment below lines in csutils.py > get_sia_fnames
-    - #local_img_path = "./nsidc/imgs/" - NSIDC image are kept here for first year (1984) and latest year
-    - #local_nc_path = "./nsidc/data/" - NSIDC NETCDF4 files are kept here.
-  - To help test the application for 2021 images are made available in folder nsidc with aboe given structure
-- Build docker container
-- Run docker container with volume mount as 
-  - docker run -p 5000:5000 --name sia --mount type=**bind**,source=**d:/[path to nsidc directory]**,target=/app/nsidc [image name]
-
-
-
 # Application endpoints
 
 ## /siage
@@ -65,3 +37,37 @@
   - country/region : select option for country or regions
 
 
+
+# Configuration and run
+## From local machine
+- use requirements.txt (pip) or environments.yml(conda) to setup flask environment.
+- To run from VS Code 
+  - make sure that .vscode/settings.json points to the correct python.
+  - Check .vscode/launch.json for settingsif you have changed any file name.
+  - Run the envoronment in VS code by selecting the correct configuration
+- To run from commond prompt
+  - make sure that current working directory is root directory of this application
+  - Set the FLASK_APP="webapp.py" in your python virtual environment.
+    - For powershell - $env:FLASK_APP="webapp.py"
+    - For windows cmd - set FLASK_APP="webapp.py"
+    - For unix/MacOS - export set FLASK_APP="webapp.py"
+    -  
+## As a docker container
+- It is also possible to run the application as docker container.
+- However, some changes need to be done to make the /siage route working as this view relies on data from another script to be available
+- make below changes 
+  - uncomment below lines in csutils.py > get_sia_fnames
+    - #local_img_path = "./nsidc/imgs/" - NSIDC image are kept here for first year (1984) and latest year
+    - #local_nc_path = "./nsidc/data/" - NSIDC NETCDF4 files are kept here.
+  - To help test the application for 2021 images are made available in folder nsidc with aboe given structure
+- Build docker container
+- Run docker container with volume mount as 
+  - docker run -p 5000:5000 --name sia --mount type=**bind**,source=**d:/[path to nsidc directory]**,target=/app/nsidc [image name]
+
+
+#  Structure
+- ## db/ 
+  Postgres export of the table as well CSV exports of the tables needed for the project. Please note they are not updated with latest values
+- ## config
+   Contains database.in with db configuration. you need to update with your local db. Current code is specific to Postgress DB.
+- 

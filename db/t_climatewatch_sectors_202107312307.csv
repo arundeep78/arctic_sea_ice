@@ -1,0 +1,58 @@
+"id","name","parent_id","data_source_id","slug"
+1299,Total including LUCF,,111,total-including-lucf
+1306,Electricity/Heat,1300,111,electricity-heat
+1307,Manufacturing/Construction,1300,111,manufacturing-construction
+1308,Transportation,1300,111,transportation
+1309,Building,1300,111,building
+1310,Other Fuel Combustion,1300,111,other-fuel-combustion
+1311,Fugitive Emissions,1300,111,fugitive-emissions
+1312,Total including LULUCF,,112,total-including-lulucf
+1313,Total excluding LULUCF,,112,total-excluding-lulucf
+1314,Energy,,112,energy
+1315,Industrial Processes and Product Use,,112,industrial-processes-and-product-use
+1316,Agriculture,,112,agriculture
+1317,Land-Use Change and Forestry,,112,land-use-change-and-forestry
+1318,Waste,,112,waste
+1319,Fuel Combustion Activities,1314,112,fuel-combustion-activities
+1320,Fugitive Emissions from Solid Fuels,1314,112,fugitive-emissions-from-solid-fuels
+1321,Fugitive Emissions from Oil and Gas,1314,112,fugitive-emissions-from-oil-and-gas
+1322,Mineral Products,,112,mineral-products
+1323,Chemical Industries,,112,chemical-industries
+1324,Metal Production,,112,metal-production
+1325,Other Production,,112,other-production
+1326,Other,,112,other
+1327,Solvent sector,,112,solvent-sector
+1328,Total GHG emissions without LULUCF,,113,total-ghg-emissions-without-lulucf
+1329,Total GHG emissions with LULUCF,,113,total-ghg-emissions-with-lulucf
+1330,"Total GHG emissions, including indirect CO2,  without LULUCF",,113,total-ghg-emissions-including-indirect-co2-without-lulucf
+1331,"Total GHG emissions, including indirect CO2,  with LULUCF",,113,total-ghg-emissions-including-indirect-co2-with-lulucf
+1332,Energy,,113,energy
+1333,Industrial Processes and Product Use,,113,industrial-processes-and-product-use
+1334,Agriculture,,113,agriculture
+1335,"Land Use, Land-Use Change and Forestry",,113,land-use-land-use-change-and-forestry
+1336,Waste,,113,waste
+1337,Other,,113,other
+1338,Total GHG emissions excluding LULUCF/LUCF,,114,total-ghg-emissions-excluding-lulucf-lucf
+1339,Total GHG emissions including LULUCF/LUCF,,114,total-ghg-emissions-including-lulucf-lucf
+1340,Energy,,114,energy
+1341,Industrial Processes,,114,industrial-processes
+1342,Solvent and Other Product Use,,114,solvent-and-other-product-use
+1343,Agriculture,,114,agriculture
+1344,LULUCF,,114,lulucf
+1345,Land-Use Change and Forestry,,114,land-use-change-and-forestry
+1346,Waste,,114,waste
+1347,Other,,114,other
+1348,Total fossil fuels and cement,,115,total-fossil-fuels-and-cement
+1349,Cement,1348,115,cement
+1350,Gas,1348,115,gas
+1351,Oil,1348,115,oil
+1352,Coal,1348,115,coal
+1353,Gas flaring,1348,115,gas-flaring
+1354,Bunkers,1348,115,bunkers
+1298,Total excluding LUCF,1299,111,total-excluding-lucf
+1300,Energy,1298,111,energy
+1301,Industrial Processes,1298,111,industrial-processes
+1302,Agriculture,1298,111,agriculture
+1303,Waste,1298,111,waste
+1304,Land-Use Change and Forestry,1299,111,land-use-change-and-forestry
+1305,Bunker Fuels,,111,bunker-fuels
