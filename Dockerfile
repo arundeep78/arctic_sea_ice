@@ -1,12 +1,6 @@
 # For more information, please refer to https://aka.ms/vscode-docker-python
 FROM python:3.8-slim-buster
 
-# Creates a non-root user with an explicit UID and adds permission to access the /app folder
-
-# install curl
-RUN apt-get update; apt install -y curl
-
-ENV VAR1=10
 
 # Keeps Python from generating .pyc files in the container
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -15,8 +9,23 @@ ENV PYTHONUNBUFFERED=1
 
 # Install pip requirements
 COPY requirements.txt .
-RUN python -m pip install -r requirements.txt
+# install curl and other dependencies
 
+RUN apt-get update\
+    && apt-get install -y curl \
+    --no-install-recommends
+
+ENV VAR1=10
+
+
+RUN python -m pip install \
+        --no-cache-dir \
+        --compile \
+        -r requirements.txt
+
+
+RUN apt-get purge -y --auto-remove  \
+    && rm -rf /var/lib/apt/lists/* \
 
 # Set environment for Flask app
 ENV FLASK_APP="webapp.py"
@@ -30,6 +39,8 @@ COPY . /app
 
 
 # For more info, please refer to https://aka.ms/vscode-docker-python-configure-containers
+# Creates a non-root user with an explicit UID and adds permission to access the /app folder
+
 RUN adduser -u 5678 --disabled-password --gecos "" appuser && chown -R appuser /app
 USER appuser
 
