@@ -8,6 +8,9 @@
 
 # Application endpoints
 
+## /
+ - This is a blank page with navigation menu
+- 
 ## /siage
 - Simple tool to assess Arctic sea ice age changes over time
 - parameters:

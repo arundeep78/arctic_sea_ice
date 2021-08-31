@@ -15,9 +15,17 @@ from . import validations as val
 # conn = csutils.get_alchemy_connection(config.config_db(db_file))
 
 @app.route("/")
-def hello():
+# def hello():
 
-    return jsonify(hello = "world")
+#     return jsonify(hello = "world")
+@app.route("/seaice")
+def seaice():
+    """
+     Main page that provides links to all other views
+
+    
+    """
+    return render_template("index.html")
 
 @app.route("/siage/")
 def siage():
@@ -63,7 +71,7 @@ def siage():
 
     
 
-    siage = csutils.get_siage(conn = conn, by= by, month = month, year = year, pct= pct, agg = agg, siac = siac, polar=False)
+    siage = csutils.get_siage(conn = conn, by= by, month = month, year = year, pct= pct, agg = agg, siac = siac, polar=True)
 
     # Get NSIDC image names of the latest image and the corresponding image in 1984
     siafnames = csutils.get_sia_fnames()

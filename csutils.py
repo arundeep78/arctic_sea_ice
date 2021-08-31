@@ -619,7 +619,7 @@ def sialoss_top_cum(db_conn, source = "CAIT", year = 1990,top_n= 10, cum = True)
 
         tree.append(grp_dict)
 
-        emissions = { "name" : "Total Sea Ice Loss " + str(year),
+    emissions = { "name" : "Total Sea Ice Loss " + str(year),
                             "children" : tree,
                             "value" : np.round(df_emissions.value.sum(),1)
                             }
@@ -1511,11 +1511,11 @@ def get_sia_fnames(remote = False):
     nsidc_server = "sidads.colorado.edu"
     nsidc_0749_path = "/pub/DATASETS/nsidc0749_ql_iceage"
     
-    local_img_path = "../../sea_ice_age/imgs/"
-    local_nc_path = "../../sea_ice_age/data/"
+    # local_img_path = "../../sea_ice_age/imgs/"
+    # local_nc_path = "../../sea_ice_age/data/"
 
-    # local_img_path = "./nsidc/imgs/"
-    # local_nc_path = "./nsidc/data/"
+    local_img_path = "./nsidc/imgs/"
+    local_nc_path = "./nsidc/data/"
 
     fname_start = "iceage_nh_12.5km_{}_{}_v4.1.png"
     fname_end = "iceage_nh_12.5km_{}_{}_ql.png"
