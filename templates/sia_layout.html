@@ -4,6 +4,29 @@
 
 <script type = "text/javascript" src="{{url_for('static', filename='js/sia.js')}}"> </script>
 
+<style>
+
+{% if request.endpoint == "sialoss" %}
+
+    
+        a#n1 
+
+{% else %}
+
+        a#n3 
+{% endif %}
+    {
+            color: black;
+            background-color: white;
+            border-top-color: black;
+            border-width: 2px;
+            border-top-style: solid;
+
+        }
+
+</style>
+
+
 {% endblock %}
 
 {% block content %}
