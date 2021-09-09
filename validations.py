@@ -2,17 +2,17 @@ import pandas as pd
 
 ############################### Global paramteters ###########################################
 
-# emissions data
-tbl_ghg = "t_climatewatch_emissions"
+# # emissions data
+tbl_ghg = "t_emissions_climatewatch"
 
-# emissions sectors hierarchy
-t_sectors = "t_climatewatch_sectors"
+# # emissions sectors hierarchy
+# t_cw_sectors = "t_emissions_climatewatch_sectors"
 
 # sea_ice _area
-tbl_sia = "t_nsidc_sea_ice_area"
+# tbl_sia = "t_nsidc_sea_ice_area"
 
 # sea_ice age
-tbl_siage = "t_nsidc_sea_ice_age"
+tbl_siage = "t_siage_nsidc"
 
 # World population
 tbl_population = "t_ref_un_population"

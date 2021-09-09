@@ -18,10 +18,13 @@ from shutil import copyfile
 ############################### Global paramteters ###########################################
 
 # emissions data
-tbl_ghg = "t_climatewatch_emissions"
+tbl_ghg = "t_emissions_climatewatch"
 
 # emissions sectors hierarchy
-tbl_sectors = "t_climatewatch_sectors"
+tbl_cw_sectors = "t_emissions_climatewatch_sectors"
+
+# emissions datasources hierarchy
+tbl_cw_datasources = "t_emissions_climatewatch_datasources"
 
 # sea_ice _area
 tbl_sia = "t_nsidc_sea_ice_area"
@@ -30,7 +33,7 @@ tbl_sia = "t_nsidc_sea_ice_area"
 tbl_population = "t_ref_un_population"
 
 # Sea Ice age table
-tbl_siage = "t_nsidc_sea_ice_age"
+tbl_siage = "t_siage_nsidc"
 
 # CO2 emissions equivalance table for small changes  e.g. per capita change equals to how many mobiles charged
 tbl_co2_eq = "t_ref_co2_emissions_equivalences"
@@ -483,7 +486,7 @@ def sialoss_top_cum(db_conn, source = "CAIT", year = 1990,top_n= 10, cum = True)
             "sum(tce.value) as value "\
 		"from {} tce "\
             "join {} tcs on tce.sector = tcs.name "\
-            "join t_climatewatch_datasources tcd on tce.data_source = tcd.name "\
+            "join {} tcd on tce.data_source = tcd.name "\
         "where " \
             "tce.data_source ='{}' and "\
             "tce.gas = '{}' and "\
@@ -501,7 +504,7 @@ def sialoss_top_cum(db_conn, source = "CAIT", year = 1990,top_n= 10, cum = True)
             "tce.value "\
 		"from {} tce "\
             "join {} tcs on tce.sector = tcs.name "\
-            "join t_climatewatch_datasources tcd on tce.data_source = tcd.name "\
+            "join {} tcd on tce.data_source = tcd.name "\
         "where " \
             "tce.data_source ='{}' and "\
             "tce.gas = '{}' and "\
@@ -523,12 +526,12 @@ def sialoss_top_cum(db_conn, source = "CAIT", year = 1990,top_n= 10, cum = True)
     if cum:
         if year is None:
             year = min_year
-        stmt = stmt_cum.format(tbl_ghg,tbl_sectors, source, gas, exl_loc, year, exl_ids)   
+        stmt = stmt_cum.format(tbl_ghg,tbl_cw_sectors, tbl_cw_datasources, source, gas, exl_loc, year, exl_ids)   
         #print( f"cum : {cum}") 
     else:
         if year is None:
             year = max_year
-        stmt = stmt_year.format(tbl_ghg,tbl_sectors, source, gas, exl_loc, year, exl_ids)
+        stmt = stmt_year.format(tbl_ghg,tbl_cw_sectors, tbl_cw_datasources, source, gas, exl_loc, year, exl_ids)
     
     df_emissions = pd.read_sql(stmt, con= db_conn)
     
@@ -634,7 +637,7 @@ def sialoss_top_cum(db_conn, source = "CAIT", year = 1990,top_n= 10, cum = True)
     tot_loss = "{:,}".format(tot_loss_n)
 
     if cum:
-        title = f"{tot_loss} km² Cumulative Arctic Sea Ice loss contribution by Top emitters since {year}"
+        title = f"{tot_loss} km² Cumulative Arctic Sea Ice loss since {year}"
     else:
         title = f"{tot_loss} km² Arctic Sea Ice loss contribution by Top emitters for year {year}"
    
@@ -668,8 +671,8 @@ def sialoss_sectors(db_conn, source = "CAIT", year = 1990,cum=True, per_cap=Fals
             "tce.sector,"\
             "tce.value "\
         " from {} as tce "\
-        "join t_climatewatch_sectors as tcs on tce.sector = tcs.name "\
-        "join t_climatewatch_datasources tcd on tce.data_source = tcd.name "\
+        "join {} as tcs on tce.sector = tcs.name "\
+        "join {} tcd on tce.data_source = tcd.name "\
         "where " \
             "tce.data_source ='{}' and "\
             "tce.gas = '{}' and "\
@@ -682,8 +685,8 @@ def sialoss_sectors(db_conn, source = "CAIT", year = 1990,cum=True, per_cap=Fals
             "tce.sector,"\
             "sum(tce.value) as value"\
         " from {} as tce "\
-        "join t_climatewatch_sectors as tcs on tce.sector = tcs.name "\
-        "join t_climatewatch_datasources tcd on tce.data_source = tcd.name "\
+        "join {} as tcs on tce.sector = tcs.name "\
+        "join {} tcd on tce.data_source = tcd.name "\
         "where " \
             "tce.data_source ='{}' and "\
             "tce.gas = '{}' and "\
@@ -714,10 +717,10 @@ def sialoss_sectors(db_conn, source = "CAIT", year = 1990,cum=True, per_cap=Fals
 
     # Get GHG emissions data  
     if cum:   
-        stmt = stmt_cum.format(tbl_ghg, source, gas, iso_a3, year, exl_ids)
+        stmt = stmt_cum.format(tbl_ghg, tbl_cw_sectors, tbl_cw_datasources, source, gas, iso_a3, year, exl_ids)
 
     else:
-        stmt = stmt_year.format(tbl_ghg, source, gas, iso_a3, year, exl_ids)
+        stmt = stmt_year.format(tbl_ghg, tbl_cw_sectors, tbl_cw_datasources, source, gas, iso_a3, year, exl_ids)
  
     df_emissions = pd.read_sql(stmt, con= db_conn)
 
@@ -804,7 +807,7 @@ def sialoss_country(db_conn, source = "CAIT" ,location = "WORLD", cum =False, pe
             "tce.value "\
 		"from {} tce "\
             "join {} tcs on tce.sector = tcs.name "\
-            "join t_climatewatch_datasources tcd on tce.data_source = tcd.name "\
+            "join {} tcd on tce.data_source = tcd.name "\
         "where " \
             "tce.data_source ='{}' and "\
             "tce.gas = '{}' and "\
@@ -817,7 +820,7 @@ def sialoss_country(db_conn, source = "CAIT" ,location = "WORLD", cum =False, pe
     stmt = f"select max(year) from {tbl_ghg} where data_source = '{source}'"
     max_year = pd.read_sql( stmt, con = db_conn).iloc[0,0]
     
-    stmt = stmt_year.format(tbl_ghg,tbl_sectors, source, gas, location, excl_ids)
+    stmt = stmt_year.format(tbl_ghg,tbl_cw_sectors,tbl_cw_datasources, source, gas, location, excl_ids)
     #print(stmt)
     df_emissions = pd.read_sql(stmt, con= db_conn)
     

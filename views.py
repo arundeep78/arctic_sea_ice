@@ -9,7 +9,7 @@ from . import conn
 from . import csutils
 from . import config
 from . import validations as val
-
+    
 # db_file = "./config/database.ini"
 
 # conn = csutils.get_alchemy_connection(config.config_db(db_file))
@@ -18,7 +18,7 @@ from . import validations as val
 # def hello():
 
 #     return jsonify(hello = "world")
-@app.route("/seaice")
+# @app.route("/seaice")
 def seaice():
     """
      Main page that provides links to all other views

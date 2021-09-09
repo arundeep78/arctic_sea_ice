@@ -17,10 +17,16 @@
 
 </head>
 
-<body>
+{% if request.endpoint == "seaice" %}
+    <body style="background-image:url({{url_for('static', filename='images/arctic_sea_ice.jpg')}}); background-repeat: round;">
+    
+{% else %}
+    <body>
 
+{% endif %}
 <nav class="navbar">
     <h3>
+        <a class="navbar-item" id="n4" href="/">Home</a> | 
         <a class="navbar-item" id="n1" href="/sialoss">Arctic Sea Ice loss contributions</a> | 
         <a class="navbar-item" id="n2" href="/siage"> Arctic Sea ice age</a> | 
         <a class="navbar-item" id="n3" href="/sia_country"> Arctic sea loss by country</a>
