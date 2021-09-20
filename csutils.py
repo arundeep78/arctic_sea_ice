@@ -607,7 +607,7 @@ def sialoss_top_cum(db_conn, source = "CAIT", year = 1990,top_n= 10, cum = True)
                 sec_dict["name"] = sec
                 val = df_emissions.loc[(df_emissions.iso_a3 == country) & (df_emissions.sector == sec), "value"].values[0]
                 
-                sec_dict["value"] = 0 if np.isnan(val) else np.round(val,2) 
+                sec_dict["value"] = 0 if np.isnan(val) else np.round(val,1) 
                 
                 if group =="Others": # All with colors
 
@@ -622,7 +622,7 @@ def sialoss_top_cum(db_conn, source = "CAIT", year = 1990,top_n= 10, cum = True)
 
         tree.append(grp_dict)
 
-    emissions = { "name" : "Total Sea Ice Loss " + str(year),
+    emissions = { "name" : "Total Sea Ice Loss in " + str(year),
                             "children" : tree,
                             "value" : np.round(df_emissions.value.sum(),1)
                             }
