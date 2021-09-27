@@ -26,7 +26,9 @@ Sea Ice Loss contributions by Top emitters, countries and Industry sectors
                 emphasis: {
                     focus: 'ancestor',
                     label: {
-                        formatter: '{b}\n\n{c} ',
+                        <!-- formatter: '{b}\n\n{c}', -->
+                        formatter: function(param) { return param.name + "\n\n" +param.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")},
+                        <!-- if called as JSON object use option.series.emphasis.label.formatter = eval( '(' + option.series.emphasis.label.formatter + ')'); in js to make it work -->
                         rotate: 'tangential',
                         align: 'center'
                     }
@@ -42,7 +44,8 @@ Sea Ice Loss contributions by Top emitters, countries and Industry sectors
                     {
                         label: {
                                 rotate: 'tangential',
-                             formatter: '{b}\n\n{c} ',
+                             <!-- formatter: '{b}\n\n{c} ', -->
+                            formatter: function(param) { return param.name + "\n\n" +param.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")},
                              verticalAlign : 'bottom',
                              offset : [230,340]
                         }

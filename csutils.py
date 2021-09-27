@@ -57,7 +57,7 @@ sec_color_dict = {"Building": "#a6cee3",
              "Fugitive Emissions" : "#ffff99",
              "Industrial Processes" : "#fdbf6f", 
              "Industrial Processes and Product Use" : "#fdbf6f",
-             #"Land-Use Change and Forestry" : "#33a02c",
+             "Land-Use Change and Forestry" : "#33a02c",
              "Manufacturing/Construction" : "#cab2d6", 
              "Other Fuel Combustion" : "#fb9a99",
              "Transportation" : "#74add1",#1f78b4",
@@ -67,7 +67,14 @@ sec_color_dict = {"Building": "#a6cee3",
              "Total excluding LULUCF" : "#ff9933",
              "Agriculture" : "#35978f",
              "Waste" : "#9970ab",
-             "Other" : "#EAEAEA"
+             "Other" : "#EAEAEA",
+             'Cement': "#a6cee3",
+             'Gas flaring' : "#EAEAEA", 
+             'Gas': "#74add1", 
+             'Coal': "darkgray", #"#dd4c51", 
+             'Oil': "#dfc27d",
+             'Bunkers':"#dd4c51",
+             
             }
 gas_colors_dict = {"All GHG": "#a6cee3",
              "CO2": "#b2df8a",
@@ -470,7 +477,9 @@ def sialoss_top_cum(db_conn, source = "CAIT", year = 1990,top_n= 10, cum = True)
     # GHG gas
     gas = "CO2"
     # IDs to be exluced from the source DS for CAIT. These are top level categories and Land usage and change, which is usually negative
-    exl_ids = (1298,1300,1299,1304,1313)
+    # exl_ids = (1298,1300,1299,1304,1313)
+
+    exl_ids = (1304,10000)
 
     # Exclude EU individual countries from the list and WORLD as a category
     exl_ccodes = get_group_ccodes(db_conn,"EUU")
@@ -493,9 +502,10 @@ def sialoss_top_cum(db_conn, source = "CAIT", year = 1990,top_n= 10, cum = True)
             "tce.iso_a3 not in {} and "\
             "tce.year >= '{}' and  "\
             "tcs.id not in {} and "\
-            "tcs.data_source_id = tcd.id "\
+            "tcs.data_source_id = tcd.id  and "\
+            "tcs.id not in (select parent_id as id from {} where parent_id is not NULL) "\
         "group by tce.iso_a3, tce.sector"
-        
+          
     stmt_year = "select "\
             "tce.iso_a3,"\
             "tcs.id,"\
@@ -511,7 +521,8 @@ def sialoss_top_cum(db_conn, source = "CAIT", year = 1990,top_n= 10, cum = True)
             "tce.iso_a3 not in {} and "\
             "tce.year = '{}' and  "\
             "tcs.id not in {} and "\
-            "tcs.data_source_id = tcd.id" # hard coded for CAIT
+            "tcs.data_source_id = tcd.id and "\
+            "tcs.id not in (select parent_id as id from {} where parent_id is not NULL) "
             
     #print(f"year : {year}")
     stmt = f"select distinct(year) as year from {tbl_ghg} where data_source = '{source}' and gas = '{gas}'"
@@ -520,18 +531,19 @@ def sialoss_top_cum(db_conn, source = "CAIT", year = 1990,top_n= 10, cum = True)
     min_year = ds_years.min() 
     max_year = ds_years.max()
     
+    print("max year", max_year)
     if not year is None: 
         year = np.clip(year, min_year, max_year)
 
     if cum:
         if year is None:
             year = min_year
-        stmt = stmt_cum.format(tbl_ghg,tbl_cw_sectors, tbl_cw_datasources, source, gas, exl_loc, year, exl_ids)   
-        #print( f"cum : {cum}") 
+        stmt = stmt_cum.format(tbl_ghg,tbl_cw_sectors, tbl_cw_datasources, source, gas, exl_loc, year, exl_ids,tbl_cw_sectors)    
+        print( f"cum : {cum}") 
     else:
         if year is None:
             year = max_year
-        stmt = stmt_year.format(tbl_ghg,tbl_cw_sectors, tbl_cw_datasources, source, gas, exl_loc, year, exl_ids)
+        stmt = stmt_year.format(tbl_ghg,tbl_cw_sectors, tbl_cw_datasources, source, gas, exl_loc, year, exl_ids,tbl_cw_sectors)
     
     df_emissions = pd.read_sql(stmt, con= db_conn)
     
@@ -583,7 +595,7 @@ def sialoss_top_cum(db_conn, source = "CAIT", year = 1990,top_n= 10, cum = True)
             
             c_dict = {}
             
-            c_dict["value"] = np.round(df_emissions.loc[df_emissions.iso_a3 == country, "value"].sum(),2)
+            c_dict["value"] = np.round(df_emissions.loc[df_emissions.iso_a3 == country, "value"].sum(),1)
         
             # If value of section is more than 10% of parent section, then show value in the label
             # if c_dict["value"]/grp_dict["value"] > .05:
@@ -678,7 +690,7 @@ def sialoss_sectors(db_conn, source = "CAIT", year = 1990,cum=True, per_cap=Fals
             "tce.gas = '{}' and "\
             "tce.iso_a3 = '{}' and "\
             "tce.year = '{}' and "\
-            "tcs.id not in {} and "\
+            "tcs.id not in (select parent_id as id from {} where parent_id is not NULL) and "\
             "tcs.data_source_id = tcd.id"
             
     stmt_cum = "select "\
@@ -692,7 +704,7 @@ def sialoss_sectors(db_conn, source = "CAIT", year = 1990,cum=True, per_cap=Fals
             "tce.gas = '{}' and "\
             "tce.iso_a3 = '{}' and "\
             "tce.year >= '{}' and "\
-            "tcs.id not in {} and "\
+            "tcs.id not in (select parent_id as id from {} where parent_id is not NULL) and "\
             "tcs.data_source_id = tcd.id "\
         "group by tce.sector"
             
@@ -717,10 +729,10 @@ def sialoss_sectors(db_conn, source = "CAIT", year = 1990,cum=True, per_cap=Fals
 
     # Get GHG emissions data  
     if cum:   
-        stmt = stmt_cum.format(tbl_ghg, tbl_cw_sectors, tbl_cw_datasources, source, gas, iso_a3, year, exl_ids)
+        stmt = stmt_cum.format(tbl_ghg, tbl_cw_sectors, tbl_cw_datasources, source, gas, iso_a3, year, tbl_cw_sectors)
 
     else:
-        stmt = stmt_year.format(tbl_ghg, tbl_cw_sectors, tbl_cw_datasources, source, gas, iso_a3, year, exl_ids)
+        stmt = stmt_year.format(tbl_ghg, tbl_cw_sectors, tbl_cw_datasources, source, gas, iso_a3, year, tbl_cw_sectors)
  
     df_emissions = pd.read_sql(stmt, con= db_conn)
 

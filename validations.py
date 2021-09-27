@@ -108,6 +108,6 @@ def sia_val_args( p_val, p_type: str, conn= None):
         return p_val if p_val in ["s", "c"] else "Error: Please select valid entry for data selection by countries (c) or sectors (s)"
 
     elif p_type == "ds":
-        return p_val if p_val in ["CAIT", "PIK"] else "Error: Please select a valid data source"
+        return p_val if p_val in ["CAIT", "PIK", "GCP"] else "Error: Please select a valid data source"
 
 

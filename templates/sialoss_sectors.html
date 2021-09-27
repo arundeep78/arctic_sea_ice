@@ -27,7 +27,8 @@ option = {
     tooltip: {
         trigger: 'item',
         showContent: true,
-        formatter: '{b} : <br> {c} ( {d}% )  '
+        formatter : function(param) { return param.name + ': <br>' + param.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' (' + param.percent + '%)'}
+        <!-- formatter: '{b} : <br> {c} ( {d}% )  ' -->
     },
 
     series: [
