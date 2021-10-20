@@ -3,7 +3,7 @@
 {% block header %}
 
 <script type = "text/javascript" src="{{url_for('static', filename='js/sia.js')}}"> </script>
-
+    
 <style>
 
 {% if request.endpoint == "sialoss" %}
@@ -123,7 +123,9 @@
 
 
 <script>
-    var myChart = echarts.init(document.getElementById('sialoss_echart'));
+    var myChart = echarts.init(document.getElementById('sialoss_echart'),'vintage');
+    
+    
     var option;
    
     {% block echart_option %}
